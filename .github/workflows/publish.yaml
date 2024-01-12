@@ -24,4 +24,4 @@ jobs:
       - name: Build image
         run: docker build . -t ${{ secrets.DOCKERHUB_USERNAME }}/git-terra-state:$RELEASE_VERSION
       - name: Push image
-        run: docker push -t ${{ secrets.DOCKERHUB_USERNAME }}/git-terra-state:$RELEASE_VERSION
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/git-terra-state:$RELEASE_VERSION
