@@ -66,6 +66,10 @@ impl GitStateManager {
         }
         fs::create_dir(dir).unwrap();
     }
+
+    fn copy(from: String, to: String) {
+        fs::copy(from, to).unwrap();
+    }
 }
 
 impl CryptoManager for GitStateManager {
@@ -90,11 +94,7 @@ impl FileManager for GitStateManager {
         let encrypted_state_file_src = self.get_in_tmp_dir("terraform.tfstate");
         let encrypted_state_file_dst = self.get_in_workspace("terraform.tfstate.encrypted");
         Self::ensure_dir_exists(self.get_in_workspace(""));
-        let cmd = format!(
-            "cp {} {}",
-            encrypted_state_file_src, encrypted_state_file_dst
-        );
-        run_command(cmd);
+        Self::copy(encrypted_state_file_src, encrypted_state_file_dst);
     }
 
     fn push(&self) {
