@@ -82,6 +82,7 @@ impl FileManager for GitStateManager {
         self.clean_clone_repo();
         let encrypted_state_file_src = self.get_in_tmp_dir("terraform.tfstate");
         let encrypted_state_file_dst = self.get_in_workspace("terraform.tfstate.encrypted");
+        run_command(format!("mkdir {}", self.get_in_workspace("")));
         let cmd = format!(
             "cp {} {}",
             encrypted_state_file_src, encrypted_state_file_dst
