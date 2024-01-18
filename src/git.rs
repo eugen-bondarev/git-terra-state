@@ -24,6 +24,10 @@ impl Git {
         !Self::ssh_dir_exists()
     }
 
+    fn should_prepare_ssh(&self) -> bool {
+        return self.ssh_key.len() > 0;
+    }
+
     fn prepare_ssh(&self) {
         if !Self::running_in_docker() {
             panic!(
@@ -44,18 +48,22 @@ impl Git {
     }
 
     pub fn clone(&self, repo: String, dst: String) {
-        self.prepare_ssh();
+        if self.should_prepare_ssh() {
+            self.prepare_ssh();
+        }
 
         /*
          * TODO: replace this call with rust code
          */
         run_command(format!("mkdir {}", dst));
-
         run_command(format!("git clone {} {}", repo, dst));
     }
 
     pub fn push(&self, repo: String, repo_location: String) {
-        self.prepare_ssh();
+        if self.should_prepare_ssh() {
+            self.prepare_ssh();
+        }
+
         run_command(format!(
             "cd {} && git config user.email {}",
             repo_location, self.email
