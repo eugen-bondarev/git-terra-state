@@ -1,7 +1,11 @@
-use std::{env, fs, path::Path};
+use std::{
+    env,
+    fs::{self, Permissions},
+    os::unix::fs::PermissionsExt,
+    path::Path,
+};
 
 use crate::{
-    cmd::run_command,
     crypto,
     git::Git,
     model::{CryptoManager, FileManager, StateManager},
@@ -40,7 +44,7 @@ impl GitStateManager {
 
     fn delete_repo(&self) {
         let wd = self.get_in_tmp_dir("");
-        run_command(format!("rm -rf {}", wd));
+        fs::remove_dir(wd).unwrap_or(());
     }
 
     fn clone_repo(&self) {
@@ -67,6 +71,10 @@ impl GitStateManager {
         fs::create_dir(dir).unwrap();
     }
 
+    fn set_permissions(path: String, mode: u32) {
+        fs::set_permissions(path, Permissions::from_mode(mode)).unwrap();
+    }
+
     fn copy(from: String, to: String) {
         fs::copy(from, to).unwrap();
     }
@@ -74,20 +82,27 @@ impl GitStateManager {
     fn move_file(from: String, to: String) {
         fs::rename(from, to).unwrap();
     }
+
+    fn delete_file(path: String) {
+        fs::remove_file(path).unwrap();
+    }
 }
 
 impl CryptoManager for GitStateManager {
     fn decrypt(&self) {
         let src = self.get_in_workspace("terraform.tfstate.encrypted");
         let dst = self.get_in_workspace("terraform.tfstate");
+
         crypto::decrypt_file(src.clone(), dst.clone(), self.get_key());
-        run_command(format!("rm -rf {}", src));
-        run_command(format!("chmod 777 {}", dst));
+
+        Self::delete_file(src);
+        Self::set_permissions(dst, 777);
     }
 
     fn encrypt(&self) {
         let src = self.get_in_workspace("terraform.tfstate");
         let dst = self.get_in_workspace("terraform.tfstate.encrypted");
+
         crypto::encrypt_file(src, dst, self.get_key());
     }
 }
