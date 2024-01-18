@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, fs, path::Path};
 
 use crate::{
     cmd::run_command,
@@ -59,6 +59,13 @@ impl GitStateManager {
         let remote = self.get_repo();
         self.git.push(remote, wd);
     }
+
+    fn ensure_dir_exists(dir: String) {
+        if Path::new(dir.as_str()).exists() {
+            return;
+        }
+        fs::create_dir(dir).unwrap();
+    }
 }
 
 impl CryptoManager for GitStateManager {
@@ -82,7 +89,7 @@ impl FileManager for GitStateManager {
         self.clean_clone_repo();
         let encrypted_state_file_src = self.get_in_tmp_dir("terraform.tfstate");
         let encrypted_state_file_dst = self.get_in_workspace("terraform.tfstate.encrypted");
-        run_command(format!("mkdir {}", self.get_in_workspace("")));
+        Self::ensure_dir_exists(self.get_in_workspace(""));
         let cmd = format!(
             "cp {} {}",
             encrypted_state_file_src, encrypted_state_file_dst
