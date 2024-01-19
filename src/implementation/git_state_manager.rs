@@ -6,6 +6,7 @@ use std::{
 };
 
 use crate::{
+    cmd::run_command,
     crypto,
     git::Git,
     model::{CryptoManager, FileManager, StateManager},
@@ -80,7 +81,10 @@ impl GitStateManager {
     }
 
     fn move_file(from: String, to: String) {
-        fs::rename(from, to).unwrap();
+        // For some reason, fs::rename fails to move
+        // files from the container into the host filesystem
+        run_command(format!("mv {} {}", from, to))
+        // fs::rename(from, to).unwrap();
     }
 
     fn delete_file(path: String) {
@@ -96,7 +100,7 @@ impl CryptoManager for GitStateManager {
         crypto::decrypt_file(src.clone(), dst.clone(), self.get_key());
 
         Self::delete_file(src);
-        Self::set_permissions(dst, 777);
+        Self::set_permissions(dst, 0o777);
     }
 
     fn encrypt(&self) {
