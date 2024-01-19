@@ -1,13 +1,16 @@
 mod cmd;
-mod crypto;
 mod git;
-mod implementation;
+mod impl_aead_encryptor;
+mod impl_default_file_encryptor;
+mod impl_git_state_manager;
 mod model;
 
 use base64::{engine::general_purpose, Engine};
 use dotenv::dotenv;
 use git::Git;
-use implementation::git_state_manager;
+use impl_aead_encryptor::AeadEncryptor;
+use impl_default_file_encryptor::DefaultFileEncryptor;
+use impl_git_state_manager::GitStateManager;
 use model::StateManager;
 use std::{
     env,
@@ -44,6 +47,10 @@ fn get_decoded_private_key() -> String {
     }
 }
 
+fn get_keys() -> String {
+    env::var("KEY").expect("$KEY is unset")
+}
+
 fn get_email() -> String {
     env::var("EMAIL").expect("$EMAIL is unset")
 }
@@ -52,12 +59,21 @@ fn main() {
     dotenv().ok();
 
     let git = Git::new(get_decoded_private_key(), get_email());
+    // let git = Git::new(String::from(""), get_email());
+
+    let keys = get_keys();
+    let key: Vec<&str> = keys.split(":").collect();
+    let enc = AeadEncryptor::new(String::from(key[0]), String::from(key[1]));
+    let file_encryptor = DefaultFileEncryptor::new(Box::new(enc));
 
     let app = App {
-        state_manager: Box::new(git_state_manager::GitStateManager::new(
+        state_manager: Box::new(GitStateManager::new(
+            // "./workspace",
+            // "./tmp",
             "/workspace",
             "/tmp",
             git,
+            Box::new(file_encryptor),
         )),
     };
 

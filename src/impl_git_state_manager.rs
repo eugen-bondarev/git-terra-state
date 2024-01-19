@@ -7,23 +7,29 @@ use std::{
 
 use crate::{
     cmd::run_command,
-    crypto,
     git::Git,
-    model::{CryptoManager, FileManager, StateManager},
+    model::{CryptoManager, FileEncryptor, FileManager, StateManager},
 };
 
 pub struct GitStateManager {
     workspace: String,
     tmp: String,
     git: Git,
+    file_encryptor: Box<dyn FileEncryptor>,
 }
 
 impl GitStateManager {
-    pub fn new(workspace: &str, tmp: &str, git: Git) -> GitStateManager {
+    pub fn new(
+        workspace: &str,
+        tmp: &str,
+        git: Git,
+        file_encryptor: Box<dyn FileEncryptor>,
+    ) -> GitStateManager {
         GitStateManager {
             workspace: String::from(workspace),
             tmp: String::from(tmp),
             git,
+            file_encryptor,
         }
     }
 
@@ -97,7 +103,8 @@ impl CryptoManager for GitStateManager {
         let src = self.get_in_workspace("terraform.tfstate.encrypted");
         let dst = self.get_in_workspace("terraform.tfstate");
 
-        crypto::decrypt_file(src.clone(), dst.clone(), self.get_key());
+        self.file_encryptor.decrypt_file(src.clone(), dst.clone());
+        // crypto::decrypt_file(src.clone(), dst.clone(), self.get_key());
 
         Self::delete_file(src);
         Self::set_permissions(dst, 0o777);
@@ -107,7 +114,8 @@ impl CryptoManager for GitStateManager {
         let src = self.get_in_workspace("terraform.tfstate");
         let dst = self.get_in_workspace("terraform.tfstate.encrypted");
 
-        crypto::encrypt_file(src, dst, self.get_key());
+        self.file_encryptor.encrypt_file(src, dst);
+        // crypto::encrypt_file(src, dst, self.get_key());
     }
 }
 
