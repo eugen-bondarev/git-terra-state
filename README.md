@@ -50,6 +50,6 @@ I wanted to create a straightforward solution for people who don't want to use s
 
 # Roadmap
 
-- Implement proper encryption
-- Minimize the number of uses of run_command, where Linux commands are executed, and eventually get rid of them altogether
-- Make the implementation "git host agnostic" (at this point, only GitHub is supported)
+- [x] ~~Implement proper encryption~~ ChaCha20-Poly1305 is used now
+- [ ] Minimize the number of uses of run_command, where Linux commands are executed, and eventually get rid of them altogether
+- [ ] Make the implementation "git host agnostic" (at this point, only GitHub is supported)
