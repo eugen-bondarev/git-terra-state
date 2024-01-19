@@ -1,6 +1,6 @@
 A simple, fast, lightweight and autonomous tool to securely store Terraform state in a git repository.
 
-**Please note: currently, it's only a prototype (v0.*.*). There are several problems that I will address in future releases.**
+**Please note: currently, it's only a prototype (v0._._). There are several problems that I will address in future releases.**
 
 **Please note: this tool doesn't aim to be a terraform backend.**
 
@@ -20,7 +20,7 @@ First time use:
 1. Create a Terraform project or open an existing one
 2. .gitignore your .tfstate file. Here are my .gitignore entries for example: `.terraform`, `.terraform.lock.hcl`, `*.tfstate`, `*.tfstate.backup`, `.env`
 3. Create a `.env` file containing the following variables:
-   1. `KEY`: a key you want to use to encrypt the state file, example: `xcmqiqwemqweoiqasdkj`
+   1. `KEY`: a key and a nonce in form \<KEY\>:\<NONCE\> you want to use to encrypt the state file. The key should contain exactly 32 characters whereas the nonce - 12. Example: `12341234123412341234123412341234:123123123123`
    2. `REPO`: a repository in which you want to store the state file, example: `git@github.com:lorem/ipsum.git`
    3. `EMAIL`: an email that should be used for the commits
    4. `SSH_KEY`: a base64-encoded one-liner containing a private SSH key with permission to push to the repository `REPO`
