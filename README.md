@@ -1,6 +1,6 @@
 A simple, fast, lightweight and autonomous tool to securely store Terraform state in a git repository.
 
-**Please note: currently, it's only a prototype (v0.1.0). There are several problems that I will address in future releases.**
+**Please note: currently, it's only a prototype (v0.*.*). There are several problems that I will address in future releases.**
 
 **Please note: this tool doesn't aim to be a terraform backend.**
 
